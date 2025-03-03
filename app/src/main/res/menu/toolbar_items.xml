@@ -1,16 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- "Mark Favorite", must appear as action button if possible. -->
 
     <item
-        android:id="@+id/item_switchMode"
-        android:title="Voice Memo" />
+        android:id="@+id/voice_memo"
+        android:title="Voice Memo"
+        app:showAsAction="never" />
+
     <item
         android:id="@+id/item_gallery"
-        android:icon="@android:drawable/ic_menu_camera"
-        android:title="Gallery" />
+        android:title="Gallery"
+        android:icon="@android:drawable/ic_menu_gallery"
+        app:showAsAction="never"/>
     <item
         android:id="@+id/item_delete"
         android:title="Delete" />
+
 </menu>

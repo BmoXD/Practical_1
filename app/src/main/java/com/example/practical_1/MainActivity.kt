@@ -33,8 +33,15 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import android.content.Intent
+import android.view.MenuItem
 
-class MainActivity : AppCompatActivity() {
+//Firebase
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
+
+
+class MainActivity : BaseActivity() {
     private lateinit var viewFinder: PreviewView
     private lateinit var btnTakePhoto: Button
     private lateinit var btnTakeVideo: Button
@@ -48,6 +55,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        // Initialize Firebase Analytics
+        //firebaseAnalytics = Firebase.analytics
+
         // The Toolbar defined in the layout has the id "my_toolbar".
         setSupportActionBar(findViewById(R.id.my_toolbar))
 
@@ -65,8 +76,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Set up the listeners for take photo and video buttons
-        btnTakePhoto.setOnClickListener { takePhoto() }
-        btnTakeVideo.setOnClickListener { toggleVideoRecording() }
+        btnTakePhoto.setOnClickListener {
+            takePhoto()
+        }
+        btnTakeVideo.setOnClickListener {
+            toggleVideoRecording()
+        }
 
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
@@ -76,10 +91,30 @@ class MainActivity : AppCompatActivity() {
         inflater.inflate(R.menu.toolbar_items, menu)
         return true
     }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.voice_memo -> { // Make sure this matches XML
+                val intent = Intent(this, AudioRecordActivity::class.java)
+                startActivity(intent)
+                true
+            }
+            R.id.item_gallery -> {
+                val intent = Intent(this, GalleryActivity::class.java)
+                startActivity(intent)
+                true
+            }
+
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
 
     private fun takePhoto() {
         // Get a stable reference of the modifiable image capture use case
         val imageCapture = imageCapture ?: return
+
+        Firebase.analytics.logEvent("photo_taken", null)
+        //Log in logcat that photo has been taken
+        Log.d(TAG, "Photo taken")
 
         // Create time stamped name and MediaStore entry
         val name = SimpleDateFormat(FILENAME_FORMAT, Locale.US)
@@ -121,6 +156,7 @@ class MainActivity : AppCompatActivity() {
         val videoCapture = this.videoCapture ?: return
 
         if (isRecording) {
+            Firebase.analytics.logEvent("video_recording_started", null)
             // Stop the current recording session
             val recording = currentRecording
             if (recording != null) {
@@ -130,6 +166,7 @@ class MainActivity : AppCompatActivity() {
                 btnTakeVideo.text = "Take Video"
             }
         } else {
+            Firebase.analytics.logEvent("video_recording_ended", null)
             // Start a new recording session
             btnTakeVideo.isEnabled = false
 
